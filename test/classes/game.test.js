@@ -1,15 +1,17 @@
-const Game = require('../../src/classes/game.js');
-const events = require('events');
+import { EventEmitter } from "node:events";
+import { expect, test } from "vitest";
+import Card from "../../src/classes/card.js";
+import Game from "../../src/classes/game.js";
 
-test('Test call until fold then check', () => {
-  const game = new Game('best-game', '1');
+test("Test call until fold then check", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
 
   const p1 = game.addPlayer("1", sock1);
@@ -35,7 +37,7 @@ test('Test call until fold then check', () => {
   expect(smallPlayer.money).toBe(95);
   expect(bigPlayer.money).toBe(90);
 
-  expect(smallPlayer.status).toBe('Their Turn');
+  expect(smallPlayer.status).toBe("Their Turn");
 
   // Pre-Flop
   game.call(smallPlayer.socket);
@@ -66,15 +68,15 @@ test('Test call until fold then check', () => {
   expect(game.roundNum).toBe(1);
 });
 
-test('Test raise more than possessed', () => {
-  const game = new Game('best-game', '1');
+test("Test raise more than possessed", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
 
   const p1 = game.addPlayer("1", sock1);
@@ -100,7 +102,7 @@ test('Test raise more than possessed', () => {
   expect(smallPlayer.money).toBe(95);
   expect(bigPlayer.money).toBe(90);
 
-  expect(smallPlayer.status).toBe('Their Turn');
+  expect(smallPlayer.status).toBe("Their Turn");
 
   // Pre-Flop
   expect(game.call(smallPlayer.socket)).toBe(true);
@@ -111,15 +113,15 @@ test('Test raise more than possessed', () => {
   expect(game.raise(bigPlayer.socket, 1000)).not.toBe(true);
 });
 
-test('Test bet more than possessed', () => {
-  const game = new Game('best-game', '1');
+test("Test bet more than possessed", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
 
   const p1 = game.addPlayer("1", sock1);
@@ -145,7 +147,7 @@ test('Test bet more than possessed', () => {
   expect(smallPlayer.money).toBe(95);
   expect(bigPlayer.money).toBe(90);
 
-  expect(smallPlayer.status).toBe('Their Turn');
+  expect(smallPlayer.status).toBe("Their Turn");
 
   // Pre-Flop
   expect(game.call(smallPlayer.socket)).toBe(true);
@@ -162,15 +164,15 @@ test('Test bet more than possessed', () => {
   expect(game.bet(bigPlayer.socket, 1000)).not.toBe(true);
 });
 
-test('Test all-in / call', () => {
-  const game = new Game('best-game', '1');
+test("Test all-in / call", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
 
   const p1 = game.addPlayer("1", sock1);
@@ -193,7 +195,7 @@ test('Test all-in / call', () => {
   const smallPlayer = game.players[game.roundData.smallBlind];
   const bigPlayer = game.players[game.roundData.bigBlind];
 
-  expect(smallPlayer.status).toBe('Their Turn');
+  expect(smallPlayer.status).toBe("Their Turn");
 
   // Pre-Flop
   expect(game.call(smallPlayer.socket)).toBe(true);
@@ -214,17 +216,17 @@ test('Test all-in / call', () => {
   expect(smallPlayer.money + bigPlayer.money).toBe(150);
 });
 
-test('Test all-in 3 players', () => {
-  const game = new Game('best-game', '1');
+test("Test all-in 3 players", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
-  const sock3 = new events.EventEmitter();
+  const sock3 = new EventEmitter();
   sock3.id = 3;
 
   const p1 = game.addPlayer("1", sock1);
@@ -247,49 +249,45 @@ test('Test all-in 3 players', () => {
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBeGreaterThan(0);
 
-  const smallPlayer = game.players[game.roundData.smallBlind];
-  const bigPlayer = game.players[game.roundData.bigBlind];
-  const thirdPlayer = game.players.filter((p) => [smallPlayer, bigPlayer].indexOf(p) === -1)[0];
-
   let currentPlayer;
 
   // Pre-Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBe(1);
 
   // Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   game.check(currentPlayer.socket);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   game.check(currentPlayer.socket);
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBe(2);
 
   // Turn
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.bet(currentPlayer.socket, currentPlayer.money)).toBe(true);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
 
   expect(game.players.reduce((a, c) => a + c.money, 0)).toBe(250);
   expect(game.roundData.bets.length).toBe(4);
 });
 
-test('Test disconnected', () => {
-  const game = new Game('best-game', '1');
+test("Test disconnected", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
 
   const p1 = game.addPlayer("1", sock1);
@@ -312,7 +310,7 @@ test('Test disconnected', () => {
   const smallPlayer = game.players[game.roundData.smallBlind];
   const bigPlayer = game.players[game.roundData.bigBlind];
 
-  expect(smallPlayer.status).toBe('Their Turn');
+  expect(smallPlayer.status).toBe("Their Turn");
 
   // Pre-Flop
   expect(game.call(smallPlayer.socket)).toBe(true);
@@ -331,17 +329,17 @@ test('Test disconnected', () => {
   expect(game.players.length).toBe(1);
 });
 
-test('Test init blind and dealer', () => {
-  const game = new Game('best-game', '1');
+test("Test init blind and dealer", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
-  const sock3 = new events.EventEmitter();
+  const sock3 = new EventEmitter();
   sock3.id = 3;
 
   const p1 = game.addPlayer("1", sock1);
@@ -361,9 +359,9 @@ test('Test init blind and dealer', () => {
   expect(p1.dealer).toBe(true);
   expect(p2.dealer).toBe(false);
   expect(p3.dealer).toBe(false);
-  expect(p1.blindValue).toBe('');
-  expect(p2.blindValue).toBe('Small Blind');
-  expect(p3.blindValue).toBe('Big Blind');
+  expect(p1.blindValue).toBe("");
+  expect(p2.blindValue).toBe("Small Blind");
+  expect(p3.blindValue).toBe("Big Blind");
 
   game.startNewRound();
   expect(game.roundNum).toBe(2);
@@ -371,9 +369,9 @@ test('Test init blind and dealer', () => {
   expect(p1.dealer).toBe(false);
   expect(p2.dealer).toBe(true);
   expect(p3.dealer).toBe(false);
-  expect(p1.blindValue).toBe('Big Blind');
-  expect(p2.blindValue).toBe('');
-  expect(p3.blindValue).toBe('Small Blind');
+  expect(p1.blindValue).toBe("Big Blind");
+  expect(p2.blindValue).toBe("");
+  expect(p3.blindValue).toBe("Small Blind");
 
   game.startNewRound();
   expect(game.roundNum).toBe(3);
@@ -381,9 +379,9 @@ test('Test init blind and dealer', () => {
   expect(p1.dealer).toBe(false);
   expect(p2.dealer).toBe(false);
   expect(p3.dealer).toBe(true);
-  expect(p1.blindValue).toBe('Small Blind');
-  expect(p2.blindValue).toBe('Big Blind');
-  expect(p3.blindValue).toBe('');
+  expect(p1.blindValue).toBe("Small Blind");
+  expect(p2.blindValue).toBe("Big Blind");
+  expect(p3.blindValue).toBe("");
 
   game.startNewRound();
   expect(game.roundNum).toBe(4);
@@ -391,20 +389,20 @@ test('Test init blind and dealer', () => {
   expect(p1.dealer).toBe(true);
   expect(p2.dealer).toBe(false);
   expect(p3.dealer).toBe(false);
-  expect(p1.blindValue).toBe('');
-  expect(p2.blindValue).toBe('Small Blind');
-  expect(p3.blindValue).toBe('Big Blind');
+  expect(p1.blindValue).toBe("");
+  expect(p2.blindValue).toBe("Small Blind");
+  expect(p3.blindValue).toBe("Big Blind");
 });
 
-test('Test raise', () => {
-  const game = new Game('best-game', '1');
+test("Test raise", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
 
   const p1 = game.addPlayer("1", sock1);
@@ -426,10 +424,10 @@ test('Test raise', () => {
   let currentPlayer;
 
   // Pre-Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.bet(currentPlayer.socket, 30)).toBe(true);
 
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   // Check can't raise under topBet
   expect(game.raise(currentPlayer.socket, 20)).not.toBe(true);
   expect(game.roundNum).toBe(1);
@@ -441,17 +439,17 @@ test('Test raise', () => {
   expect(game.roundData.bets.length).toBe(2);
 });
 
-test('Test all-in 3 players low credits win', () => {
-  const game = new Game('best-game', '1');
+test("Test all-in 3 players low credits win", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
-  const sock3 = new events.EventEmitter();
+  const sock3 = new EventEmitter();
   sock3.id = 3;
 
   const p1 = game.addPlayer("1", sock1);
@@ -474,22 +472,20 @@ test('Test all-in 3 players low credits win', () => {
   expect(game.roundData.bets.length).toBe(0);
   game.startGame();
 
-
   p1.cards[0].value = 7;
-  p1.cards[0].suit = '♠';
+  p1.cards[0].suit = "♠";
   p1.cards[1].value = 7;
-  p1.cards[1].suit = '♥';
+  p1.cards[1].suit = "♥";
 
   p2.cards[0].value = 8;
-  p2.cards[0].suit = '♠';
+  p2.cards[0].suit = "♠";
   p2.cards[1].value = 8;
-  p2.cards[1].suit = '♥';
+  p2.cards[1].suit = "♥";
 
   p3.cards[0].value = 1;
-  p3.cards[0].suit = '♠';
+  p3.cards[0].suit = "♠";
   p3.cards[1].value = 1;
-  p3.cards[1].suit = '♥';
-
+  p3.cards[1].suit = "♥";
 
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBeGreaterThan(0);
@@ -497,40 +493,41 @@ test('Test all-in 3 players low credits win', () => {
   let currentPlayer;
 
   // Pre-Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBe(1);
 
   // Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   game.check(currentPlayer.socket);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   game.check(currentPlayer.socket);
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBe(2);
 
   game.community[0].value = 1;
-  game.community[0].suit = '♦';
+  game.community[0].suit = "♦";
   game.community[1].value = 1;
-  game.community[1].suit = '♣';
-  game.community[2].value = 'K';
-  game.community[2].suit = '♣';
+  game.community[1].suit = "♣";
+  game.community[2].value = "K";
+  game.community[2].suit = "♣";
+  game.deck.cards = [new Card(2, "♦"), new Card(3, "♣")];
 
   // Turn
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(currentPlayer.money).toBe(90);
   expect(game.bet(currentPlayer.socket, currentPlayer.money)).toBe(true);
   expect(currentPlayer.money).toBe(0);
 
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(currentPlayer.money).toBe(40);
   expect(game.call(currentPlayer.socket)).toBe(true);
   expect(currentPlayer.money).toBe(0);
 
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(currentPlayer.money).toBe(90);
   expect(game.call(currentPlayer.socket)).toBe(true);
 
@@ -543,17 +540,17 @@ test('Test all-in 3 players low credits win', () => {
   expect(game.roundData.bets.length).toBe(4);
 });
 
-test('Test all-in 3 players high credits win', () => {
-  const game = new Game('best-game', '1');
+test("Test all-in 3 players high credits win", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
-  const sock3 = new events.EventEmitter();
+  const sock3 = new EventEmitter();
   sock3.id = 3;
 
   const p1 = game.addPlayer("1", sock1);
@@ -576,22 +573,20 @@ test('Test all-in 3 players high credits win', () => {
   expect(game.roundData.bets.length).toBe(0);
   game.startGame();
 
-
   p1.cards[0].value = 7;
-  p1.cards[0].suit = '♠';
+  p1.cards[0].suit = "♠";
   p1.cards[1].value = 7;
-  p1.cards[1].suit = '♥';
+  p1.cards[1].suit = "♥";
 
   p2.cards[0].value = 1;
-  p2.cards[0].suit = '♠';
+  p2.cards[0].suit = "♠";
   p2.cards[1].value = 1;
-  p2.cards[1].suit = '♥';
+  p2.cards[1].suit = "♥";
 
   p3.cards[0].value = 8;
-  p3.cards[0].suit = '♠';
+  p3.cards[0].suit = "♠";
   p3.cards[1].value = 8;
-  p3.cards[1].suit = '♥';
-
+  p3.cards[1].suit = "♥";
 
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBeGreaterThan(0);
@@ -599,40 +594,41 @@ test('Test all-in 3 players high credits win', () => {
   let currentPlayer;
 
   // Pre-Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBe(1);
 
   // Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   game.check(currentPlayer.socket);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   game.check(currentPlayer.socket);
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBe(2);
 
   game.community[0].value = 1;
-  game.community[0].suit = '♦';
+  game.community[0].suit = "♦";
   game.community[1].value = 1;
-  game.community[1].suit = '♣';
-  game.community[2].value = 'K';
-  game.community[2].suit = '♣';
+  game.community[1].suit = "♣";
+  game.community[2].value = "K";
+  game.community[2].suit = "♣";
+  game.deck.cards = [new Card(2, "♦"), new Card(3, "♣")];
 
   // Turn
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(currentPlayer.money).toBe(90);
   expect(game.bet(currentPlayer.socket, currentPlayer.money)).toBe(true);
   expect(currentPlayer.money).toBe(0);
 
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(currentPlayer.money).toBe(40);
   expect(game.call(currentPlayer.socket)).toBe(true);
   expect(currentPlayer.money).toBe(0);
 
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(currentPlayer.money).toBe(90);
   expect(game.call(currentPlayer.socket)).toBe(true);
 
@@ -646,22 +642,22 @@ test('Test all-in 3 players high credits win', () => {
 });
 
 function getCurrentPlayer(players) {
-  const currentTurnArr = players.filter((p) => p.status === 'Their Turn');
+  const currentTurnArr = players.filter((p) => p.status === "Their Turn");
   expect(currentTurnArr.length).toBe(1);
   return currentTurnArr[0];
 }
 
-test('Test fold', () => {
-  const game = new Game('best-game', '1');
+test("Test fold", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
-  const sock3 = new events.EventEmitter();
+  const sock3 = new EventEmitter();
   sock3.id = 3;
 
   const p1 = game.addPlayer("1", sock1);
@@ -728,17 +724,17 @@ test('Test fold', () => {
   expect(game.players.reduce((a, c) => a + c.money, 0)).toBe(300);
 });
 
-test('Test all fold', () => {
-  const game = new Game('best-game', '1');
+test("Test all fold", () => {
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
   // Mock socket
-  const sock1 = new events.EventEmitter();
+  const sock1 = new EventEmitter();
   sock1.id = 1;
-  const sock2 = new events.EventEmitter();
+  const sock2 = new EventEmitter();
   sock2.id = 2;
-  const sock3 = new events.EventEmitter();
+  const sock3 = new EventEmitter();
   sock3.id = 3;
 
   const p1 = game.addPlayer("1", sock1);
@@ -766,20 +762,20 @@ test('Test all fold', () => {
   let currentPlayer;
 
   // Pre-Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.raise(currentPlayer.socket, 30)).toBe(true);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
   expect(game.roundNum).toBe(1);
   expect(game.roundData.bets.length).toBe(2);
   expect(game.roundInProgress).toBe(true);
 
   // Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   game.fold(currentPlayer.socket);
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   game.fold(currentPlayer.socket);
 
   expect(game.roundNum).toBe(1);
@@ -789,8 +785,8 @@ test('Test all fold', () => {
   expect(game.players.reduce((a, c) => a + c.money, 0)).toBe(300);
 });
 
-test('Test _distributeMoney', () => {
-  const game = new Game('best-game', '1');
+test("Test _distributeMoney", () => {
+  const game = new Game("best-game", "1");
   const pot = 100;
   const players = [
     { live: true, invested: 20, handStrength: 100, result: 0 },
@@ -809,43 +805,54 @@ test('Test _distributeMoney', () => {
   expect(players[4].result).toBe(920);
 });
 
-
-
-test('Test infinite loop issue', () => {
+test("Test infinite loop issue", () => {
   // Log data retreive before infinite loop crash
-  const playersData = [{
-    "username": "$2a$11$sN3yXEe38GKcnCfxIO2GCe8/rGoSkZ5AtWba6p1cq5NQXQ4HZUYPS",
-    "cards": [{
-      "value": "A",
-      "suit": "♣"
-    }, {
-      "value": 3,
-      "suit": "♠"
-    }],
-    "money": 5,
-  }, {
-    "username": "$2a$11$Um0VU8I.gNaKNi6LeFFUG.n7yvlTcCd0CNIozbfofFoP82IcMmri2",
-    "cards": [{
-      "value": "Q",
-      "suit": "♠"
-    }, {
-      "value": 2,
-      "suit": "♣"
-    }],
-    "money": 5,
-  }, {
-    "username": "$2a$11$EFSkbqmMr9.xSzEWOWXcEuu85NypJpg3XUdMrT3oO1FmMjB1wF4JO",
-    "cards": [{
-      "value": 10,
-      "suit": "♥"
-    }, {
-      "value": "A",
-      "suit": "♥"
-    }],
-    "money": 5,
-  }];
+  const playersData = [
+    {
+      username: "$2a$11$sN3yXEe38GKcnCfxIO2GCe8/rGoSkZ5AtWba6p1cq5NQXQ4HZUYPS",
+      cards: [
+        {
+          value: "A",
+          suit: "♣",
+        },
+        {
+          value: 3,
+          suit: "♠",
+        },
+      ],
+      money: 5,
+    },
+    {
+      username: "$2a$11$Um0VU8I.gNaKNi6LeFFUG.n7yvlTcCd0CNIozbfofFoP82IcMmri2",
+      cards: [
+        {
+          value: "Q",
+          suit: "♠",
+        },
+        {
+          value: 2,
+          suit: "♣",
+        },
+      ],
+      money: 5,
+    },
+    {
+      username: "$2a$11$EFSkbqmMr9.xSzEWOWXcEuu85NypJpg3XUdMrT3oO1FmMjB1wF4JO",
+      cards: [
+        {
+          value: 10,
+          suit: "♥",
+        },
+        {
+          value: "A",
+          suit: "♥",
+        },
+      ],
+      money: 5,
+    },
+  ];
 
-  const game = new Game('best-game', '1');
+  const game = new Game("best-game", "1");
   game.smallBlind = 5;
   game.bigBlind = 10;
 
@@ -853,7 +860,7 @@ test('Test infinite loop issue', () => {
   const sockets = [];
   const players = [];
   for (const pl of playersData) {
-    const sock = new events.EventEmitter();
+    const sock = new EventEmitter();
     sock.id = pl.username;
     sockets.push(sock);
 
@@ -880,9 +887,9 @@ test('Test infinite loop issue', () => {
   let currentPlayer;
 
   // Pre-Flop
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true);
 
-  currentPlayer = game.players.filter((p) => p.status === 'Their Turn')[0];
+  currentPlayer = game.players.filter((p) => p.status === "Their Turn")[0];
   expect(game.call(currentPlayer.socket)).toBe(true); // This call made an infinite loop
 });

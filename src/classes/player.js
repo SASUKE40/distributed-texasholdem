@@ -5,8 +5,8 @@ const Player = function (playerName, socket, debug) {
   this.currentCard = null;
   this.money = 100;
   this.buyIns = 0;
-  this.status = '';
-  this.blindValue = '';
+  this.status = "";
+  this.blindValue = "";
   this.dealer = false;
   this.allIn = false;
   this.goAgainStatus = false;
@@ -16,9 +16,9 @@ const Player = function (playerName, socket, debug) {
     this.cards.push(card);
   };
 
-  this.log = () => {
+  this.log = (...args) => {
     if (this.debug) {
-      console.log(...arguments);
+      console.log(...args);
     }
   };
 
@@ -49,4 +49,4 @@ const Player = function (playerName, socket, debug) {
   };
 };
 
-module.exports = Player;
+export default Player;

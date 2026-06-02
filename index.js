@@ -1,1 +1,1 @@
-exports.Game = require('./src/classes/game.js'); 
+export { default as Game } from "./src/classes/game.js";

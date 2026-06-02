@@ -1,6 +1,8 @@
 # dependencies
 **/node_modules
 **/bower_components
+dist/
+.wrangler/
 
 # Cache & History
 .npm

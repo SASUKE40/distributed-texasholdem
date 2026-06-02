@@ -1,0 +1,16 @@
+name = "distributed-texasholdem"
+main = "src/worker.js"
+compatibility_date = "2026-06-02"
+
+[assets]
+directory = "./dist/client"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[[durable_objects.bindings]]
+name = "POKER_ROOM"
+class_name = "PokerRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["PokerRoom"]

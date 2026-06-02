@@ -3,8 +3,6 @@ const Card = function (value, suit) {
   this.value = value;
   this.suit = suit;
 
-  const constructor = (function () {})(this);
-
   this.compare = (card) => {
     if (this.value < card.getValue()) return -1;
     if (this.value == card.getValue()) return 0;
@@ -23,7 +21,7 @@ const Card = function (value, suit) {
     return this.suit;
   };
 
-  this.print = () => console.log(this.getValue() + ' of ' + this.getSuit());
+  this.print = () => console.log(this.getValue() + " of " + this.getSuit());
 };
 
-module.exports = Card;
+export default Card;
