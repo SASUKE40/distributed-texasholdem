@@ -77,6 +77,9 @@ export class PokerRoom {
       case "resume":
         this.resume(socket, data);
         break;
+      case "leave":
+        this.leave(socket);
+        break;
       case "startGame":
         this.startGame(socket, data);
         break;
@@ -227,6 +230,35 @@ export class PokerRoom {
 
     game.emitPlayers("gameBegin", { code: game.getCode() });
     game.startGame();
+  }
+
+  leave(socket) {
+    const game = this.findGameBySocket(socket);
+    if (!game) {
+      socket.emit("exited", {});
+      return;
+    }
+
+    const player = game.findPlayer(socket.id);
+    if (!player || player.socket?.id !== socket.id) {
+      socket.emit("exited", {});
+      return;
+    }
+
+    if (player.reconnectTimer) {
+      clearTimeout(player.reconnectTimer);
+      player.reconnectTimer = null;
+    }
+
+    game.disconnectPlayer(player);
+    if (game.players.length === 0) {
+      this.rooms = this.rooms.filter((room) => room !== game);
+    }
+
+    socket.sessionToken = null;
+    socket.gameCode = null;
+    socket.username = null;
+    socket.emit("exited", {});
   }
 
   evaluatePossibleMoves(socket) {

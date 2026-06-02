@@ -37,6 +37,17 @@ button:disabled {
   opacity: 0.45;
 }
 
+.secondary {
+  border: 1px solid rgb(255 255 255 / 18%);
+  background: rgb(255 255 255 / 10%);
+  color: #f8faf7;
+}
+
+.compact {
+  min-height: 34px;
+  padding: 0 12px;
+}
+
 main {
   width: min(1180px, calc(100vw - 32px));
   margin: 0 auto;

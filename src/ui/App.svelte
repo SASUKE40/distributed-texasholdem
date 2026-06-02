@@ -7,6 +7,7 @@
   let hostName = '';
   let joinName = '';
   let joinCode = '';
+  let activeCode = '';
   let room = null;
   let joinedRoom = null;
   let hand = null;
@@ -29,6 +30,7 @@
       code: 'Code',
       hostGame: 'Host Game',
       joinGame: 'Join Game',
+      exit: 'Exit',
       table: 'Table',
       fullTable: 'This table is full. Maximum is 11 players.',
       waitingTwo: 'Waiting for at least two players.',
@@ -63,6 +65,7 @@
       reconnected: 'Reconnected.',
       disconnected: 'disconnected.',
       playerReconnected: 'reconnected.',
+      exited: 'Exited table.',
       language: '中文',
     },
     zh: {
@@ -74,6 +77,7 @@
       code: '房间码',
       hostGame: '创建游戏',
       joinGame: '加入游戏',
+      exit: '退出',
       table: '牌桌',
       fullTable: '这个牌桌已满，最多 11 名玩家。',
       waitingTwo: '等待至少两名玩家。',
@@ -108,6 +112,7 @@
       reconnected: '已重新连接。',
       disconnected: '已断线。',
       playerReconnected: '已重连。',
+      exited: '已退出牌桌。',
       language: 'English',
     },
   };
@@ -150,6 +155,7 @@
     socket.on('errorMessage', (data) => setNotice(data.message));
     socket.on('resumeFailed', (data) => setNotice(data.message));
     socket.on('resumed', handleResumed);
+    socket.on('exited', handleExited);
     socket.on('playerDisconnected', (data) => setNotice(`${data.player} ${copy.disconnected}`));
     socket.on('playerReconnected', (data) => setNotice(`${data.player} ${copy.playerReconnected}`));
     socket.on('hostRoom', handleHostRoom);
@@ -207,6 +213,7 @@
       setNotice(copy.hostNameInvalid);
       return;
     }
+    activeCode = data.code ?? data.session?.code ?? activeCode;
     room = data;
     joinedRoom = null;
     mode = 'room';
@@ -217,6 +224,7 @@
       setNotice(copy.joinInvalid);
       return;
     }
+    activeCode = data.session?.code ?? joinCode.trim() ?? activeCode;
     joinedRoom = data;
     room = null;
     mode = 'room';
@@ -226,6 +234,7 @@
     hostName = data.username;
     joinName = data.username;
     joinCode = data.code;
+    activeCode = data.code;
 
     if (data.roundStarted) {
       mode = 'game';
@@ -243,17 +252,43 @@
     setNotice(copy.reconnected);
   };
 
+  const resetGameState = () => {
+    mode = 'lobby';
+    activeCode = '';
+    room = null;
+    joinedRoom = null;
+    hand = null;
+    table = null;
+    possibleMoves = {};
+    betAmount = 2;
+    raiseAmount = 2;
+    raiseBounds = { min: 0, max: 100 };
+  };
+
+  const handleExited = () => {
+    socket.clearSession();
+    resetGameState();
+    setNotice(copy.exited);
+  };
+
   const hostGame = () => socket.emit('host', { username: hostName.trim() });
   const joinGame = () =>
     socket.emit('join', { username: joinName.trim(), code: joinCode.trim() });
-  const startGame = () => socket.emit('startGame', { code: room?.code ?? joinCode.trim() });
+  const startGame = () => socket.emit('startGame', { code: activeCode || room?.code || joinCode.trim() });
+  const exitGame = () => {
+    socket.clearSession();
+    socket.emit('leave');
+    resetGameState();
+    setNotice(copy.exited);
+  };
   const playNext = () => socket.emit('startNextRound');
   const move = (moveName, bet = moveName) => socket.emit('moveMade', { move: moveName, bet });
   const openRaise = () => socket.emit('raiseModalData');
 
   const currentPlayers = () => room?.players ?? joinedRoom?.players ?? [];
   const currentHost = () => joinedRoom?.host ?? hostName;
-  const canStart = () => room?.code && currentPlayers().length > 1 && currentPlayers().length <= 11;
+  const roomCode = () => activeCode || room?.code || joinedRoom?.session?.code || joinCode.trim();
+  const canStart = () => roomCode() && currentPlayers().length > 1 && currentPlayers().length <= 11;
   const myMoney = () => table?.myMoney ?? 100;
   const active = () => table?.myStatus === 'Their Turn' && table?.roundInProgress;
   const betFor = (name) => {
@@ -318,7 +353,7 @@
       <section class="room">
         <div>
           <p class="eyebrow">{copy.table}</p>
-          <h2>{room?.code ? `${copy.code} ${room.code}` : `${currentHost()} ${copy.table}`}</h2>
+          <h2>{roomCode() ? `${copy.code} ${roomCode()}` : `${currentHost()} ${copy.table}`}</h2>
         </div>
         <div class="player-list">
           {#each currentPlayers() as player}
@@ -328,11 +363,11 @@
         {#if currentPlayers().length >= 11}
           <p class="warning">{copy.fullTable}</p>
         {/if}
-        {#if canStart()}
-          <button class="start" on:click={startGame}>{copy.startGame}</button>
-        {:else}
+        <button class="start" disabled={!canStart()} on:click={startGame}>{copy.startGame}</button>
+        {#if !canStart()}
           <p class="waiting">{copy.waitingTwo}</p>
         {/if}
+        <button class="secondary" type="button" on:click={exitGame}>{copy.exit}</button>
       </section>
     {/if}
   {:else}
@@ -353,6 +388,7 @@
         <div class="stats">
           <span>{copy.topBet} ${table?.topBet ?? 0}</span>
           <span>{copy.pot} ${table?.pot ?? 0}</span>
+          <button class="secondary compact" type="button" on:click={exitGame}>{copy.exit}</button>
         </div>
       </header>
 
