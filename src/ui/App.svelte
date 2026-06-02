@@ -291,6 +291,7 @@
   const canStart = () => roomCode() && currentPlayers().length > 1 && currentPlayers().length <= 11;
   const myMoney = () => table?.myMoney ?? 100;
   const active = () => table?.myStatus === 'Their Turn' && table?.roundInProgress;
+  const actionDisabled = (moveName) => !active() || possibleMoves[moveName] !== 'yes';
   const betFor = (name) => {
     const current = table?.bets?.[table.bets.length - 1] ?? [];
     return current.find((entry) => entry.player === name)?.bet ?? 0;
@@ -419,16 +420,16 @@
 
         <section class="actions">
           <h2>{copy.actions}</h2>
-          {#if active()}
-            <button disabled={possibleMoves.fold !== 'yes'} on:click={() => move('fold')}>{copy.fold}</button>
-            <button disabled={possibleMoves.check !== 'yes'} on:click={() => move('check')}>{copy.check}</button>
+          {#if table?.roundInProgress}
+            <button disabled={actionDisabled('fold')} on:click={() => move('fold')}>{copy.fold}</button>
+            <button disabled={actionDisabled('check')} on:click={() => move('check')}>{copy.check}</button>
             <label>
               {copy.bet}
-              <input type="range" min="2" max={myMoney()} bind:value={betAmount} />
+              <input type="range" min="2" max={myMoney()} bind:value={betAmount} disabled={!active()} />
               <span>${betAmount}</span>
             </label>
-            <button disabled={possibleMoves.bet !== 'yes'} on:click={() => move('bet', Number(betAmount))}>{copy.bet}</button>
-            <button disabled={possibleMoves.call === 'no'} on:click={() => move('call')}>
+            <button disabled={actionDisabled('bet')} on:click={() => move('bet', Number(betAmount))}>{copy.bet}</button>
+            <button disabled={!active() || possibleMoves.call == null || possibleMoves.call === 'no'} on:click={() => move('call')}>
               {possibleMoves.call === 'all-in' ? copy.callAllIn : `${copy.call} $${possibleMoves.call ?? 0}`}
             </button>
             <label>
@@ -439,12 +440,16 @@
                 max={raiseBounds.max}
                 bind:value={raiseAmount}
                 on:focus={openRaise}
+                disabled={!active()}
               />
               <span>${raiseAmount}</span>
             </label>
-            <button disabled={possibleMoves.raise !== 'yes'} on:click={() => move('raise', Number(raiseAmount))}>
+            <button disabled={actionDisabled('raise')} on:click={() => move('raise', Number(raiseAmount))}>
               {copy.raise}
             </button>
+            {#if !active()}
+              <p>{copy.waitingPlayer}</p>
+            {/if}
           {:else if table?.roundInProgress === false}
             <button on:click={playNext}>{copy.startNextHand}</button>
           {:else}
